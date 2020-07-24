@@ -2,6 +2,13 @@
 ### Это тестовый проект, написанный на Python3 с использованеим фреймворков Django и DRF (Django Rest Framework). Проект предназначен для запуска как контейнер с помощью docker-compose.
 Код оформлен с помощью [black](https://github.com/psf/black "Black is the uncompromising Python code formatter.").
 
+Сайт можно посмотреть на Heroku - https://secure-falls-10809.herokuapp.com/ . Вот ссылка на список новостей - https://secure-falls-10809.herokuapp.com/api/v1/news/ .
+Войти можно через пользователь admin или user.
+| Ник | Пароль |
+| ------ | ------ |
+| admin | admin |
+| user | user |
+
 Скачать проект можно с помощью команды:
 ```
 mkdir news_board_API
