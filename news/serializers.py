@@ -5,12 +5,13 @@ from .models import Post, Comment, Rating
 
 class PostListSerializer(serializers.ModelSerializer):
     """Список новостей"""
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
     rating = serializers.IntegerField()
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FilterCommentListSerializer(serializers.ListSerializer):
@@ -31,24 +32,26 @@ class RecursiveSerializer(serializers.Serializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     """Вывод комментариев"""
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
     children = RecursiveSerializer(many=True)
 
     class Meta:
         list_serializer_class = FilterCommentListSerializer
         model = Comment
-        exclude = ('post', 'parent')
+        exclude = ("post", "parent")
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
     """Список новостей"""
-    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
     rating = serializers.IntegerField()
     comments = CommentSerializer(many=True)
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
@@ -56,7 +59,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -64,7 +67,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RatingCreateSerializer(serializers.ModelSerializer):
@@ -72,4 +75,4 @@ class RatingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = '__all__'
+        fields = "__all__"

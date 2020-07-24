@@ -3,14 +3,19 @@ from rest_framework.views import APIView
 from django.db import models
 
 from .models import Post, Rating
-from .serializers import PostListSerializer, CommentCreateSerializer, PostDetailSerializer, \
-    PostCreateSerializer, RatingCreateSerializer
+from .serializers import (
+    PostListSerializer,
+    CommentCreateSerializer,
+    PostDetailSerializer,
+    PostCreateSerializer,
+    RatingCreateSerializer,
+)
 
 
 def add_author(request):
     """Добавление автора к post методу"""
     data = request.data
-    data['author'] = request.user.pk
+    data["author"] = request.user.pk
     return data
 
 
@@ -59,8 +64,10 @@ class RatingCreateView(APIView):
     """Добавление голоса рейтинга"""
 
     def post(self, request):
-        if 'post' in request.data:
-            if Rating.objects.filter(post=Post.objects.get(pk=request.data['post']), author=request.user).exists():
+        if "post" in request.data:
+            if Rating.objects.filter(
+                post=Post.objects.get(pk=request.data["post"]), author=request.user
+            ).exists():
                 return Response(status=400, data="Нельзя повторно голосовать")
         rating = RatingCreateSerializer(data=add_author(request))
         if rating.is_valid():
