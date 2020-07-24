@@ -1,31 +1,4 @@
 # News_Board_API
-#### Это тестовый проект, написанный на Python3 с использованеим фреймворков Django, DRF.
- [пример](http://example.com/ "Необязательная подсказка")
-
-
-
-
-
-Скачать проект можно с помощью команды:
-
-```
-git clone https://github.com/Kouff/mychat.git
-```
-Для работы пректа необходим Python-фреймворк `Django`. Установить его можно через pip:
-```
-pip install django
-```
-Что бы запустить сервер проекта необходимо в папке проекта запустить команду:
-```
-python manage.py runserver
-```
-В браузере вводим `url` или просто клацнуть по ссылке: http://127.0.0.1:8000/login/ 
-
-Это страница входа. Можно как зарегистрироваться, так и зайти под существующем пользоватем:
-| Ник | Пароль |
-| ------ | ------ |
-| admin | admin |
-# News_Board_API
 ### Это тестовый проект, написанный на Python3 с использованеим фреймворков Django и DRF (Django Rest Framework). Проект предназначен для запуска как контейнер с помощью docker-compose.
 Код оформлен с помощью [black](https://github.com/psf/black "Black is the uncompromising Python code formatter.").
 
