@@ -24,7 +24,5 @@ class Comment(models.Model):
 
 
 class Rating(models.Model):
-    post = models.ForeignKey(
-        Post, related_name="rating_votes", on_delete=models.CASCADE
-    )
+    post = models.ForeignKey(Post, related_name="rating_votes", on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)

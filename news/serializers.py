@@ -3,19 +3,16 @@ from rest_framework import serializers
 from .models import Post, Comment, Rating
 
 
-class PostListSerializer(serializers.ModelSerializer):
-    """Список новостей"""
+class CustomModelSerializer(serializers.ModelSerializer):
+    """ModelSerializer class with updated create method to add author to model creation"""
 
-    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
-    rating = serializers.IntegerField()
-
-    class Meta:
-        model = Post
-        fields = "__all__"
+    def create(self, validated_data):
+        validated_data['author'] = self.context.get('request').user
+        return super().create(validated_data)
 
 
 class FilterCommentListSerializer(serializers.ListSerializer):
-    """Фильтр комментариев, у которых parent=None"""
+    """Filter for comments with parent = None"""
 
     def to_representation(self, data):
         data = data.filter(parent=None)
@@ -23,56 +20,50 @@ class FilterCommentListSerializer(serializers.ListSerializer):
 
 
 class RecursiveSerializer(serializers.Serializer):
-    """Вывод рекурсивно children"""
+    """Outputting recursively children"""
 
     def to_representation(self, value):
         serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    """Вывод комментариев"""
-
+class CommentListSerializer(CustomModelSerializer):
+    """Comments output"""
     author = serializers.SlugRelatedField(slug_field="username", read_only=True)
-    children = RecursiveSerializer(many=True)
+    children = RecursiveSerializer(many=True, read_only=True)
 
     class Meta:
         list_serializer_class = FilterCommentListSerializer
         model = Comment
-        exclude = ("post", "parent")
+        fields = '__all__'
+        extra_kwargs = {'parent': {'write_only': True}, 'post': {'write_only': True}}
+
+
+class RatingCreateSerializer(CustomModelSerializer):
+    """Create rating"""
+    class Meta:
+        model = Rating
+        exclude = ('id', 'author')
+        extra_kwargs = {'post': {'write_only': True}}
+
+
+class PostListSerializer(CustomModelSerializer):
+    """Posts (news) output"""
+    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = "__all__"
+        read_only_fields = ('author',)
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
-    """Список новостей"""
-
+    """Post (news) output in detail"""
     author = serializers.SlugRelatedField(slug_field="username", read_only=True)
-    rating = serializers.IntegerField()
-    comments = CommentSerializer(many=True)
+    rating = serializers.IntegerField(read_only=True)
+    comments = CommentListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
-        fields = "__all__"
-
-
-class PostCreateSerializer(serializers.ModelSerializer):
-    """Добавление новости"""
-
-    class Meta:
-        model = Post
-        fields = "__all__"
-
-
-class CommentCreateSerializer(serializers.ModelSerializer):
-    """Добавление комементариев"""
-
-    class Meta:
-        model = Comment
-        fields = "__all__"
-
-
-class RatingCreateSerializer(serializers.ModelSerializer):
-    """Добавление голоса рейтинга"""
-
-    class Meta:
-        model = Rating
         fields = "__all__"

@@ -1,76 +1,66 @@
+from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.db import models
+from rest_framework.generics import (
+    ListCreateAPIView,
+    CreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 
-from .models import Post, Rating
+from .models import Post, Comment, Rating
 from .serializers import (
     PostListSerializer,
-    CommentCreateSerializer,
     PostDetailSerializer,
-    PostCreateSerializer,
+    CommentListSerializer,
     RatingCreateSerializer,
 )
 
 
-def add_author(request):
-    """Добавление автора к post методу"""
-    data = request.data
-    data["author"] = request.user.pk
-    return data
+class CustomCreateAPIView(CreateAPIView):
+    """CreateAPIView class with updated create method to add post (news) id to serializer"""
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        data['post'] = self.kwargs['pk']
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class PostListView(APIView):
-    """Вывод списка новостей"""
-
-    def get(self, request):
-        posts = Post.objects.all().annotate(rating=models.Count("rating_votes"))
-        serializer = PostListSerializer(posts, many=True)
-        return Response(serializer.data)
+def get_posts():
+    """Get all posts (news) with the field rating"""
+    return Post.objects.all().annotate(rating=models.Count("rating_votes"))
 
 
-class PostDetailView(APIView):
-    """Вывод всех комментариев к новости"""
-
-    def get(self, request, id):
-        post = Post.objects.get(pk=id)
-        post.rating = post.rating_votes.count()
-        serializer = PostDetailSerializer(post)
-        return Response(serializer.data)
+class PostListView(ListCreateAPIView):
+    """Display or create news"""
+    queryset = get_posts()
+    serializer_class = PostListSerializer
 
 
-class PostCreateView(APIView):
-    """Добавление новости"""
-
-    def post(self, request):
-        post = PostCreateSerializer(data=add_author(request))
-        if post.is_valid():
-            post.save()
-            return Response(status=201)
-        return Response(status=400)
+class PostDetailView(RetrieveUpdateDestroyAPIView):
+    """Display, edit or delete news"""
+    queryset = get_posts()
+    serializer_class = PostDetailSerializer
 
 
-class CommentCreateView(APIView):
-    """Добавление комментария"""
-
-    def post(self, request):
-        comment = CommentCreateSerializer(data=add_author(request))
-        if comment.is_valid():
-            comment.save()
-            return Response(status=201)
-        return Response(status=400)
+class CommentCreateView(CustomCreateAPIView):
+    """Create comments"""
+    queryset = Comment.objects.all()
+    serializer_class = CommentListSerializer
 
 
-class RatingCreateView(APIView):
-    """Добавление голоса рейтинга"""
+class RatingCreateView(CustomCreateAPIView):
+    """Creat rating"""
+    queryset = Rating.objects.all()
+    serializer_class = RatingCreateSerializer
 
-    def post(self, request):
-        if "post" in request.data:
-            if Rating.objects.filter(
-                post=Post.objects.get(pk=request.data["post"]), author=request.user
-            ).exists():
-                return Response(status=400, data="Нельзя повторно голосовать")
-        rating = RatingCreateSerializer(data=add_author(request))
-        if rating.is_valid():
-            rating.save()
-            return Response(status=201)
-        return Response(status=400)
+    def create(self, request, *args, **kwargs):
+        if Rating.objects.filter(author=request.user, post_id=self.kwargs['pk']).exists():
+            # check for the existence of an object and display a message if the object already exists
+            return Response({'vote': 'already been cast'}, status=status.HTTP_409_CONFLICT)
+        else:
+            respons = super().create(request, *args, **kwargs)
+            respons.data['vote'] = 'accepted'
+            return respons

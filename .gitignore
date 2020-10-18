@@ -2,3 +2,7 @@
 news/migrations/
 !news/migrations/__init__.py
 *.sqlite3
+__pycache__/
+news/__pycache__/
+news_board_API/__pycache__/
+venv/
