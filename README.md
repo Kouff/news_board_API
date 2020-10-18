@@ -1,7 +1,17 @@
 # News_Board_API
-### Это тестовый проект, написанный на Python3 с использованеим фреймворков Django и DRF (Django Rest Framework). Проект предназначен для запуска как контейнер с помощью docker-compose.
+### Это тестовый проект, написанный на Python3 с использованеим фреймворков Django и DRF (Django Rest Framework), является аналогом вот этого сайта [HackerNews](https://news.ycombinator.com/) (но без frontend). Проект предназначен для запуска как контейнер с помощью docker-compose.
 Код оформлен с помощью [black](https://github.com/psf/black "Black is the uncompromising Python code formatter.").
 
+## Heroku
+Сайт можно посмотреть на Heroku - https://secure-falls-10809.herokuapp.com/ . Вот ссылка на список новостей - https://secure-falls-10809.herokuapp.com/api/v1/news/ . Более подробно узнать о url можно ниже в пункте ***URL и API***. 
+
+Войти можно через пользователей admin или user.
+| Ник | Пароль |
+| ------ | ------ |
+| admin | admin |
+| user | user |
+
+## Проект
 Скачать проект можно с помощью команды:
 ```
 mkdir news_board_API
@@ -28,7 +38,7 @@ docker-compose run web python /news_board_API/manage.py createsuperuser
 docker-compose up -d --build
 ```
 Готово! Если сделали всё правильно, то по ссылке http://127.0.0.1:8000/ можно перейти на наш сайт.
-## Сервер
+## URL и API
 ##### URL сайта:
 >http://127.0.0.1:8000/admin/ - вход в учетную запись через Django
 
