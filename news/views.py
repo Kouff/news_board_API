@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django.db import models
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -7,7 +8,8 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
 )
 
-from .models import Post, Comment, Rating
+from .models import Post, Comment, Rating, User
+from .permissions import IsAuthorOrReadOnly, IsMe
 from .serializers import (
     PostListSerializer,
     PostDetailSerializer,
