@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
-from .models import Post, Comment, Rating
+from .models import Post, Comment, Rating, User
 
 
 class CustomModelSerializer(serializers.ModelSerializer):
@@ -41,6 +43,7 @@ class CommentListSerializer(CustomModelSerializer):
 
 class RatingCreateSerializer(CustomModelSerializer):
     """Create rating"""
+
     class Meta:
         model = Rating
         exclude = ('id', 'author')
@@ -66,4 +69,36 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
+        fields = "__all__"
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+
+    def validate(self, attrs):
+        user = User(**attrs)
+        password = attrs.get("password")
+
+        try:
+            validate_password(password, user)
+        except ValidationError as e:
+            serializer_error = serializers.as_serializer_error(e)
+            raise serializers.ValidationError(
+                {"password": serializer_error["non_field_errors"]}
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+    class Meta:
+        model = User
+        fields = ("username", "password")
+        extra_kwargs = {'password': {'write_only': True}}
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
         fields = "__all__"

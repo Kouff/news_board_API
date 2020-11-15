@@ -15,11 +15,14 @@ from .serializers import (
     PostDetailSerializer,
     CommentListSerializer,
     RatingCreateSerializer,
+    UserCreateSerializer,
+    UserDetailSerializer,
 )
 
 
 class CustomCreateAPIView(CreateAPIView):
     """CreateAPIView class with updated create method to add post (news) id to serializer"""
+
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         data['post'] = self.kwargs['pk']
@@ -45,6 +48,7 @@ class PostDetailView(RetrieveUpdateDestroyAPIView):
     """Display, edit or delete news"""
     queryset = get_posts()
     serializer_class = PostDetailSerializer
+    permission_classes = (IsAuthorOrReadOnly,)
 
 
 class CommentCreateView(CustomCreateAPIView):
@@ -63,6 +67,18 @@ class RatingCreateView(CustomCreateAPIView):
             # check for the existence of an object and display a message if the object already exists
             return Response({'vote': 'already been cast'}, status=status.HTTP_409_CONFLICT)
         else:
-            respons = super().create(request, *args, **kwargs)
-            respons.data['vote'] = 'accepted'
-            return respons
+            response = super().create(request, *args, **kwargs)
+            response.data['vote'] = 'accepted'
+            return response
+
+
+class UserCreateView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
+    permission_classes = (AllowAny,)
+
+
+class UserDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = (IsMe,)
